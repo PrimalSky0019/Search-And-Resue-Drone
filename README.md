@@ -60,7 +60,75 @@ Follow these steps to get the project running on your own hardware.
         * `GND` -> Arduino `GND`
         * `SCL` -> Arduino `A5`
         * `SDA` -> Arduino `A4`
-    *(**Pro Tip:** Create a simple wiring diagram using a tool like [Fritzing](https://fritzing.org/) and add a screenshot here!)*
+
+2.  **Circuit Diagram:** See the complete wiring diagram below:
+
+    ```
+    Search & Rescue Radar System - Circuit Diagram
+    ===============================================
+
+    Arduino Uno Connections:
+    ------------------------
+
+                        Arduino Uno
+                        ┌─────────────┐
+                        │             │
+                        │  ┌─────────┐│
+                        │  │   USB   ││
+                        │  └─────────┘│
+                        │             │
+                        │  ┌─────────┐│
+                        │  │  Reset  ││
+                        │  └─────────┘│
+                        │             │
+                        │  ┌─────────┐│
+                        │  │   A5    ││ ←─── SCL (MPU6050)
+                        │  └─────────┘│
+                        │  ┌─────────┐│
+                        │  │   A4    ││ ←─── SDA (MPU6050)
+                        │  └─────────┘│
+                        │             │
+                        │  ┌─────────┐│
+                        │  │   Pin 8 ││ ←─── TX (C4001 Radar)
+                        │  └─────────┘│
+                        │  ┌─────────┐│
+                        │  │   Pin 9 ││ ←─── RX (C4001 Radar)
+                        │  └─────────┘│
+                        │             │
+                        │  ┌─────────┐│
+                        │  │   5V    ││ ←─── VCC (Both sensors)
+                        │  └─────────┘│
+                        │  ┌─────────┐│
+                        │  │   GND   ││ ←─── GND (Both sensors)
+                        │  └─────────┘│
+                        │             │
+                        └─────────────┘
+
+    Component Connections:
+    ----------------------
+
+    1. DFRobot C4001 mmWave Radar:
+       ┌─────────────────┐
+       │   C4001 Radar   │
+       │                 │
+       │  VCC ───────────┼─── 5V (Arduino)
+       │  GND ───────────┼─── GND (Arduino)
+       │  TX  ───────────┼─── Pin 8 (Arduino)
+       │  RX  ───────────┼─── Pin 9 (Arduino)
+       └─────────────────┘
+
+    2. MPU6050 6-Axis Sensor:
+       ┌─────────────────┐
+       │    MPU6050      │
+       │                 │
+       │  VCC ───────────┼─── 5V (Arduino)
+       │  GND ───────────┼─── GND (Arduino)
+       │  SCL ───────────┼─── A5 (Arduino)
+       │  SDA ───────────┼─── A4 (Arduino)
+       └─────────────────┘
+    ```
+
+    For a more detailed diagram, see [`circuit_diagram.txt`](circuit_diagram.txt) in the repository root.
 
 ### 2. Software Installation
 

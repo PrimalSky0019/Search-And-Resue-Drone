@@ -1,0 +1,70 @@
+Search & Rescue Radar System - Circuit Diagram
+===============================================
+
+Arduino Uno Connections:
+------------------------
+
+                    Arduino Uno
+                    ┌─────────────┐
+                    │             │
+                    │  ┌─────────┐│
+                    │  │   USB   ││
+                    │  └─────────┘│
+                    │             │
+                    │  ┌─────────┐│
+                    │  │  Reset  ││
+                    │  └─────────┘│
+                    │             │
+                    │  ┌─────────┐│
+                    │  │   A5    ││ ←─── SCL (MPU6050)
+                    │  └─────────┘│
+                    │  ┌─────────┐│
+                    │  │   A4    ││ ←─── SDA (MPU6050)
+                    │  └─────────┘│
+                    │             │
+                    │  ┌─────────┐│
+                    │  │   Pin 8 ││ ←─── TX (C4001 Radar)
+                    │  └─────────┘│
+                    │  ┌─────────┐│
+                    │  │   Pin 9 ││ ←─── RX (C4001 Radar)
+                    │  └─────────┘│
+                    │             │
+                    │  ┌─────────┐│
+                    │  │   5V    ││ ←─── VCC (Both sensors)
+                    │  └─────────┘│
+                    │  ┌─────────┐│
+                    │  │   GND   ││ ←─── GND (Both sensors)
+                    │  └─────────┘│
+                    │             │
+                    └─────────────┘
+
+Component Connections:
+---------------------
+
+1. DFRobot C4001 mmWave Radar:
+   ┌─────────────────┐
+   │   C4001 Radar   │
+   │                 │
+   │  VCC ───────────┼─── 5V (Arduino)
+   │  GND ───────────┼─── GND (Arduino)
+   │  TX  ───────────┼─── Pin 8 (Arduino)
+   │  RX  ───────────┼─── Pin 9 (Arduino)
+   └─────────────────┘
+
+2. MPU6050 6-Axis Sensor:
+   ┌─────────────────┐
+   │    MPU6050      │
+   │                 │
+   │  VCC ───────────┼─── 5V (Arduino)
+   │  GND ───────────┼─── GND (Arduino)
+   │  SCL ───────────┼─── A5 (Arduino)
+   │  SDA ───────────┼─── A4 (Arduino)
+   └─────────────────┘
+
+Power Requirements:
+------------------
+- Arduino Uno: 5V via USB or external power
+- C4001 Radar: 5V (from Arduino)
+- MPU6050: 5V (from Arduino)
+
+Note: All components share the same 5V and GND rails from the Arduino.
