@@ -6,7 +6,6 @@ A complete Search & Rescue drone system using an Arduino, ESP32, mmWave radar, a
 
 The goal of this project is to create a fully functional drone platform that can help first responders quickly locate individuals trapped under rubble after an earthquake or other structural collapse.
 
-
 ---
 
 ## 🎯 Key Features
@@ -40,10 +39,10 @@ The goal of this project is to create a fully functional drone platform that can
 * [Arduino IDE](https://www.arduino.cc/en/software)
 * Python 3.x
 * **Arduino Libraries:**
-    * `DFRobot_C4001`
+    * `DFRobot_C4001` (Note: This may be needed on the ESP32 side, or on the Arduino if it's processing raw data)
     * `MPU6050_tockn`
     * `Wire`
-    * `SoftwareSerial`
+    * `SoftwareSerial` (for Arduino-ESP32 communication)
 * **Python Libraries:**
     * `pyserial`
     * `matplotlib`
@@ -58,17 +57,18 @@ Follow these steps to get the project running on your own hardware.
 
 ### 1. Hardware Setup
 
-1.  **Wire the Components:** Connect the C4001 radar and MPU6050 sensor to your Arduino.
-    * **C4001 Radar:**
-        * `VCC` -> Arduino `5V`
-        * `GND` -> Arduino `GND`
-        * `TX` -> Arduino Pin `8` (SoftwareSerial RX)
-        * `RX` -> Arduino Pin `9` (SoftwareSerial TX)
-    * **MPU6050 Sensor:**
+1.  **Wire the Components:** Following the circuit diagram, connect the sensors to their respective controllers.
+    * **MPU6050 Sensor (to Arduino):**
         * `VCC` -> Arduino `5V`
         * `GND` -> Arduino `GND`
         * `SCL` -> Arduino `A5`
         * `SDA` -> Arduino `A4`
+    * **C4001 Radar (to ESP32):**
+        * Connect the radar's `VCC`, `GND`, `TX`, and `RX` pins to the ESP32 (as shown in the diagram).
+    * **Relay Module (to ESP32):**
+        * Connect the relay's control pins to available GPIOs on the ESP32.
+    * **Controller Communication (Arduino <-> ESP32):**
+        * Connect Arduino pins `2, 3, 4, 5` to corresponding GPIO pins on the ESP32 to establish a communication link.
 
 2.  **Complete Circuit Diagram:** This system includes a full quadcopter platform with dual controllers, motor control, and advanced sensing capabilities.
 
@@ -77,20 +77,20 @@ Follow these steps to get the project running on your own hardware.
     *Complete electrical schematic showing all components and connections for the Search & Rescue drone system*
 
     **Key System Components:**
-    - **Arduino UNO:** Primary flight controller and sensor hub
-    - **ESP32-WROOM-32:** Secondary controller for advanced features
-    - **4x ESC 30A BLDC Controllers:** Motor speed control
-    - **4x T-MOTOR AT2820 KV1250 Motors:** Brushless propulsion
-    - **3S LiPo Battery (30C 3000mAh):** High-power energy source
-    - **4-Channel Relay Module:** Expandable control system
+    -   **Arduino UNO:** Primary flight controller and sensor hub
+    -   **ESP32-WROOM-32:** Secondary controller for advanced features
+    -   **4x ESC 30A BLDC Controllers:** Motor speed control
+    -   **4x T-MOTOR AT2820 KV1250 Motors:** Brushless propulsion
+    -   **3S LiPo Battery (30C 3000mAh):** High-power energy source
+    -   **4-Channel Relay Module:** Expandable control system
 
     **Main Connections:**
-    - **Arduino I2C:** A4/A5 → MPU6050 (orientation sensing)
-    - **Arduino Serial:** Pin 8/9 → C4001 Radar (human detection)
-    - **Motor Control:** Pins 6,7,10,11 → ESC signal lines
-    - **ESP32 Communication:** Pins 2,3,4,5 → ESP32 GPIO
-    - **Power Distribution:** 3S LiPo → ESCs → Motors
-    - **Control Systems:** ESP32 → Relay Module
+    -   **Arduino I2C:** A4/A5 → MPU6050 (orientation sensing)
+    -   **Arduino Motor Control:** Pins 6,7,10,11 → ESC signal lines
+    -   **Arduino-ESP32 Link:** Arduino Pins 2,3,4,5 → ESP32 GPIOs
+    -   **ESP32 Sensors:** ESP32 GPIOs → C4001 Radar (human detection)
+    -   **ESP32 Control:** ESP32 GPIOs → 4-Channel Relay Module
+    -   **Power Distribution:** 3S LiPo → ESCs → Motors
 
     For the complete detailed wiring diagram and connection specifications, see [`circuit_diagram.txt`](circuit_diagram.txt) in the repository root.
 
@@ -112,10 +112,11 @@ Follow these steps to get the project running on your own hardware.
     * Install the required libraries from the Library Manager.
     * Select your board and COM port.
     * Click "Upload".
+    *(Note: You will also need to program the ESP32 with code to read the radar and send data to the Arduino. This file is not listed in the README but is implied by the diagram.)*
 
 ### 3. Running the System
 
-1.  **Configure the COM Port:** Find your Arduino's serial port name (e.g., `COM4` on Windows or `/dev/ttyUSB0` on Linux).
+1.  **Configure the COM Port:** Find your **Arduino's** serial port name (e.g., `COM4` on Windows or `/dev/ttyUSB0` on Linux).
 2.  **Update the Python Script:** Open `sensor_output.py` and change the `SERIAL_PORT` variable to your port name.
     ```python
     # sensor_output.py
@@ -141,11 +142,12 @@ Here is a sample of the Python visualization in action. The left plot shows the 
 
 ## 💡 How It Works
 
-The system operates in two main parts:
+The system operates using a dual-controller architecture:
 
-1.  **Arduino Sensor Hub:** The Arduino continuously polls the C4001 radar and MPU6050. If the radar detects a target with a signal energy above a set threshold, the Arduino packages the distance, energy, and MPU orientation data into a simple comma-separated string (e.g., `1,5.2,850,0.5,-1.2,89.5`). It sends this string over the USB serial port. If no target is found, it sends a `0`.
-
-2.  **Python Visualization Client:** A Python script on the host computer listens to the serial port. It runs two main threads:
+1.  **ESP32 Sensor Hub:** The ESP32 is dedicated to handling complex sensors. It continuously polls the C4001 mmWave radar for target data and also controls the 4-channel relay module.
+2.  **Arduino Flight & Comms Hub:** The Arduino serves as the primary flight controller and data aggregator. It continuously polls the MPU6050 for orientation data and controls the four ESCs for flight stability. It also receives the processed radar data from the ESP32 (via the 4-pin connection).
+3.  **Data Transmission:** The Arduino packages its own MPU data and the radar data from the ESP32 into a simple comma-separated string (e.g., `1,5.2,850,0.5,-1.2,89.5`). It sends this string over its main USB serial port to the host computer. If no target is found, it sends a `0`.
+4.  **Python Visualization Client:** A Python script on the host computer listens to the Arduino's serial port. It runs two main threads:
     * **Serial Reader Thread:** Constantly reads data from the Arduino so the main application never freezes.
     * **Main Thread:** Parses the incoming data and uses Matplotlib to update the plots in real-time. If a new target is detected, it triggers a text-to-speech alert in a separate thread to avoid interrupting the visualization.
 
