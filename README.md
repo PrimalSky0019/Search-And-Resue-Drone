@@ -72,6 +72,10 @@ Follow these steps to get the project running on your own hardware.
 
 2.  **Complete Circuit Diagram:** This system includes a full quadcopter platform with dual controllers, motor control, and advanced sensing capabilities.
 
+    ![Search & Rescue Drone Circuit Diagram](images/circuit_diagram.png)
+    
+    *Complete electrical schematic showing all components and connections for the Search & Rescue drone system*
+
     **Key System Components:**
     - **Arduino UNO:** Primary flight controller and sensor hub
     - **ESP32-WROOM-32:** Secondary controller for advanced features
