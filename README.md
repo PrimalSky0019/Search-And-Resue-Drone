@@ -2,9 +2,9 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A proof-of-concept system using an Arduino, mmWave radar, and an MPU6050 to detect the presence of humans in disaster scenarios. The system features a real-time Python visualization and audio alerts.
+A complete Search & Rescue drone system using an Arduino, ESP32, mmWave radar, and MPU6050 to detect the presence of humans in disaster scenarios. The system features a real-time Python visualization, audio alerts, and autonomous flight capabilities.
 
-The goal of this project is to create a sensor package that could be mounted on a drone to help first responders quickly locate individuals trapped under rubble after an earthquake or other structural collapse.
+The goal of this project is to create a fully functional drone platform that can help first responders quickly locate individuals trapped under rubble after an earthquake or other structural collapse.
 
 
 ---
@@ -12,20 +12,29 @@ The goal of this project is to create a sensor package that could be mounted on 
 ## 🎯 Key Features
 
 * **Human Detection:** Uses a DFRobot C4001 mmWave radar to detect human presence, even through obstacles.
+* **Autonomous Flight:** Complete quadcopter system with 4x T-MOTOR AT2820 KV1250 motors and ESC control.
+* **Dual Controller Architecture:** Arduino for primary flight control, ESP32 for advanced features and relay control.
 * **Real-time Visualization:** A Python-based GUI displays target location on a polar plot and signal energy on a range profile graph.
-* **Orientation Sensing:** An MPU6050 provides orientation data, which can be used to map detections in 3D space.
+* **Orientation Sensing:** An MPU6050 provides orientation data for flight stability and 3D mapping.
 * **Audio Alerts:** The system uses text-to-speech to announce when a person is detected, providing their distance and signal strength.
-* **Serial Communication:** Efficient, clean data transfer from the Arduino sensor hub to the Python visualization client.
+* **Expandable Control:** 4-channel relay module for additional payload control and sensor integration.
+* **High-Power System:** 3S LiPo battery (30C 3000mAh) for extended flight time and high-power operations.
 
 ---
 
 ## 🛠️ Hardware & Software Requirements
 
 ### Hardware Components
-* **Microcontroller:** Arduino Uno (or any similar board)
+* **Primary Controller:** Arduino Uno
+* **Secondary Controller:** ESP32-WROOM-32 Module
 * **Primary Sensor:** DFRobot C4001 mmWave Radar Sensor
 * **Orientation Sensor:** MPU6050 6-Axis Gyroscope & Accelerometer
-* Jumper Wires & Breadboard
+* **Control System:** 4-Channel Relay Module
+* **Motor System:** 4x ESC 30A BLDC Controllers
+* **Propulsion:** 4x T-MOTOR AT2820 KV1250 Brushless Motors
+* **Power:** 3S LiPo Battery (30C 3000mAh)
+* **Frame:** Quadcopter frame (not shown in diagram)
+* **Wiring:** Jumper wires, connectors, and power distribution board
 
 ### Software & Libraries
 * [Arduino IDE](https://www.arduino.cc/en/software)
@@ -61,74 +70,25 @@ Follow these steps to get the project running on your own hardware.
         * `SCL` -> Arduino `A5`
         * `SDA` -> Arduino `A4`
 
-2.  **Circuit Diagram:** See the complete wiring diagram below:
+2.  **Complete Circuit Diagram:** This system includes a full quadcopter platform with dual controllers, motor control, and advanced sensing capabilities.
 
-    ```
-    Search & Rescue Radar System - Circuit Diagram
-    ===============================================
+    **Key System Components:**
+    - **Arduino UNO:** Primary flight controller and sensor hub
+    - **ESP32-WROOM-32:** Secondary controller for advanced features
+    - **4x ESC 30A BLDC Controllers:** Motor speed control
+    - **4x T-MOTOR AT2820 KV1250 Motors:** Brushless propulsion
+    - **3S LiPo Battery (30C 3000mAh):** High-power energy source
+    - **4-Channel Relay Module:** Expandable control system
 
-    Arduino Uno Connections:
-    ------------------------
+    **Main Connections:**
+    - **Arduino I2C:** A4/A5 → MPU6050 (orientation sensing)
+    - **Arduino Serial:** Pin 8/9 → C4001 Radar (human detection)
+    - **Motor Control:** Pins 6,7,10,11 → ESC signal lines
+    - **ESP32 Communication:** Pins 2,3,4,5 → ESP32 GPIO
+    - **Power Distribution:** 3S LiPo → ESCs → Motors
+    - **Control Systems:** ESP32 → Relay Module
 
-                        Arduino Uno
-                        ┌─────────────┐
-                        │             │
-                        │  ┌─────────┐│
-                        │  │   USB   ││
-                        │  └─────────┘│
-                        │             │
-                        │  ┌─────────┐│
-                        │  │  Reset  ││
-                        │  └─────────┘│
-                        │             │
-                        │  ┌─────────┐│
-                        │  │   A5    ││ ←─── SCL (MPU6050)
-                        │  └─────────┘│
-                        │  ┌─────────┐│
-                        │  │   A4    ││ ←─── SDA (MPU6050)
-                        │  └─────────┘│
-                        │             │
-                        │  ┌─────────┐│
-                        │  │   Pin 8 ││ ←─── TX (C4001 Radar)
-                        │  └─────────┘│
-                        │  ┌─────────┐│
-                        │  │   Pin 9 ││ ←─── RX (C4001 Radar)
-                        │  └─────────┘│
-                        │             │
-                        │  ┌─────────┐│
-                        │  │   5V    ││ ←─── VCC (Both sensors)
-                        │  └─────────┘│
-                        │  ┌─────────┐│
-                        │  │   GND   ││ ←─── GND (Both sensors)
-                        │  └─────────┘│
-                        │             │
-                        └─────────────┘
-
-    Component Connections:
-    ----------------------
-
-    1. DFRobot C4001 mmWave Radar:
-       ┌─────────────────┐
-       │   C4001 Radar   │
-       │                 │
-       │  VCC ───────────┼─── 5V (Arduino)
-       │  GND ───────────┼─── GND (Arduino)
-       │  TX  ───────────┼─── Pin 8 (Arduino)
-       │  RX  ───────────┼─── Pin 9 (Arduino)
-       └─────────────────┘
-
-    2. MPU6050 6-Axis Sensor:
-       ┌─────────────────┐
-       │    MPU6050      │
-       │                 │
-       │  VCC ───────────┼─── 5V (Arduino)
-       │  GND ───────────┼─── GND (Arduino)
-       │  SCL ───────────┼─── A5 (Arduino)
-       │  SDA ───────────┼─── A4 (Arduino)
-       └─────────────────┘
-    ```
-
-    For a more detailed diagram, see [`circuit_diagram.txt`](circuit_diagram.txt) in the repository root.
+    For the complete detailed wiring diagram and connection specifications, see [`circuit_diagram.txt`](circuit_diagram.txt) in the repository root.
 
 ### 2. Software Installation
 

@@ -1,70 +1,139 @@
-Search & Rescue Radar System - Circuit Diagram
-===============================================
+Search & Rescue Drone System - Complete Circuit Diagram
+=====================================================
 
-Arduino Uno Connections:
+This diagram shows the complete electrical connections for a Search & Rescue drone
+system with advanced sensing and control capabilities.
+
+Main Components:
+---------------
+
+1. **Arduino UNO** - Primary flight controller and sensor hub
+2. **ESP32-WROOM-32** - Secondary controller for advanced features
+3. **DFRobot C4001 mmWave Radar** - Human detection sensor
+4. **MPU6050** - 6-axis gyroscope and accelerometer
+5. **4-Channel Relay Module** - Control system interface
+6. **4x ESC 30A BLDC Controllers** - Motor speed controllers
+7. **4x T-MOTOR AT2820 KV1250 Motors** - Brushless DC motors
+8. **3S LiPo Battery (30C 3000mAh)** - Main power source
+
+Power Distribution:
+------------------
+
+3S LiPo Battery (11.1V) → ESCs → Motors
+3S LiPo Battery → Arduino 5V → Sensors
+ESP32 3.3V → Relay Module
+
+Arduino UNO Connections:
 ------------------------
 
-                    Arduino Uno
-                    ┌─────────────┐
-                    │             │
-                    │  ┌─────────┐│
-                    │  │   USB   ││
-                    │  └─────────┘│
-                    │             │
-                    │  ┌─────────┐│
-                    │  │  Reset  ││
-                    │  └─────────┘│
-                    │             │
-                    │  ┌─────────┐│
-                    │  │   A5    ││ ←─── SCL (MPU6050)
-                    │  └─────────┘│
-                    │  ┌─────────┐│
-                    │  │   A4    ││ ←─── SDA (MPU6050)
-                    │  └─────────┘│
-                    │             │
-                    │  ┌─────────┐│
-                    │  │   Pin 8 ││ ←─── TX (C4001 Radar)
-                    │  └─────────┘│
-                    │  ┌─────────┐│
-                    │  │   Pin 9 ││ ←─── RX (C4001 Radar)
-                    │  └─────────┘│
-                    │             │
-                    │  ┌─────────┐│
-                    │  │   5V    ││ ←─── VCC (Both sensors)
-                    │  └─────────┘│
-                    │  ┌─────────┐│
-                    │  │   GND   ││ ←─── GND (Both sensors)
-                    │  └─────────┘│
-                    │             │
-                    └─────────────┘
+Power:
+- 5V → MPU6050 VCC, C4001 VCC, Relay VCC, ESC signal power
+- GND → All component grounds
 
-Component Connections:
----------------------
+I2C (MPU6050):
+- A4 (SDA) → MPU6050 SDA
+- A5 (SCL) → MPU6050 SCL
 
-1. DFRobot C4001 mmWave Radar:
-   ┌─────────────────┐
-   │   C4001 Radar   │
-   │                 │
-   │  VCC ───────────┼─── 5V (Arduino)
-   │  GND ───────────┼─── GND (Arduino)
-   │  TX  ───────────┼─── Pin 8 (Arduino)
-   │  RX  ───────────┼─── Pin 9 (Arduino)
-   └─────────────────┘
+Serial (C4001 Radar):
+- Pin 8 (RX) → C4001 TX
+- Pin 9 (TX) → C4001 RX
 
-2. MPU6050 6-Axis Sensor:
-   ┌─────────────────┐
-   │    MPU6050      │
-   │                 │
-   │  VCC ───────────┼─── 5V (Arduino)
-   │  GND ───────────┼─── GND (Arduino)
-   │  SCL ───────────┼─── A5 (Arduino)
-   │  SDA ───────────┼─── A4 (Arduino)
-   └─────────────────┘
+Motor Control (ESC Signal Lines):
+- Pin 6 → Bottom-Left ESC Signal
+- Pin 7 → Top-Left ESC Signal  
+- Pin 10 → Bottom-Right ESC Signal
+- Pin 11 → Top-Right ESC Signal
 
-Power Requirements:
+ESP32 Communication:
+- Pin 2 → ESP32 GPIO16
+- Pin 3 → ESP32 GPIO17
+- Pin 4 → ESP32 GPIO5
+- Pin 5 → ESP32 GPIO18
+
+ESP32-WROOM-32 Connections:
+---------------------------
+
+Power:
+- 3V3 → Relay Module VCC
+- GND → Arduino GND
+
+Arduino Communication:
+- GPIO16 → Arduino Pin 2
+- GPIO17 → Arduino Pin 3
+- GPIO5 → Arduino Pin 4
+- GPIO18 → Arduino Pin 5
+
+Relay Control:
+- GPIO23 → Relay IN1
+- GPIO22 → Relay IN2
+- GPIO21 → Relay IN3
+- GPIO19 → Relay IN4
+
+Motor System:
+------------
+
+Each ESC receives:
+- Power: 3S LiPo Battery (11.1V)
+- Signal: Arduino digital pin (PWM control)
+- Ground: Common ground with Arduino
+
+Motor Layout (Quadcopter):
+- Top-Left: ESC → T-MOTOR AT2820 KV1250
+- Top-Right: ESC → T-MOTOR AT2820 KV1250
+- Bottom-Left: ESC → T-MOTOR AT2820 KV1250
+- Bottom-Right: ESC → T-MOTOR AT2820 KV1250
+
+Sensor Integration:
 ------------------
-- Arduino Uno: 5V via USB or external power
-- C4001 Radar: 5V (from Arduino)
-- MPU6050: 5V (from Arduino)
 
-Note: All components share the same 5V and GND rails from the Arduino.
+DFRobot C4001 mmWave Radar:
+- Detects human presence through obstacles
+- Serial communication with Arduino
+- Real-time target detection
+
+MPU6050:
+- 6-axis motion sensing (3-axis gyro + 3-axis accel)
+- I2C communication
+- Flight stability and orientation
+
+System Features:
+---------------
+
+1. **Dual Controller Architecture:**
+   - Arduino: Primary flight control and sensor processing
+   - ESP32: Advanced features and relay control
+
+2. **Human Detection:**
+   - mmWave radar for through-obstacle detection
+   - Real-time target tracking
+   - Audio alerts via Python visualization
+
+3. **Flight Control:**
+   - 4-motor quadcopter configuration
+   - Individual ESC control for each motor
+   - Orientation feedback from MPU6050
+
+4. **Power Management:**
+   - High-capacity 3S LiPo battery
+   - 30C discharge rating for high power demands
+   - Separate power rails for control and propulsion
+
+5. **Relay Control System:**
+   - 4-channel relay module for additional payload control
+   - ESP32-controlled switching
+   - Expandable for additional sensors or actuators
+
+Safety Considerations:
+--------------------
+
+- All power connections properly fused
+- ESC signal isolation from power lines
+- Common ground reference for all components
+- Proper voltage regulation (5V for Arduino, 3.3V for ESP32)
+- LiPo battery protection and monitoring
+
+This system represents a complete Search & Rescue drone platform capable of:
+- Autonomous flight with stability control
+- Human detection in disaster scenarios
+- Real-time data transmission to ground station
+- Expandable control systems for additional payloads
